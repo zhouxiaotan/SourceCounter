@@ -70,7 +70,6 @@
             this.textPackage.Name = "textPackage";
             this.textPackage.Size = new System.Drawing.Size(280, 20);
             this.textPackage.TabIndex = 8;
-            this.textPackage.Text = "PKBUH-3";
             // 
             // label2
             // 
@@ -109,7 +108,6 @@
             this.textPath.Name = "textPath";
             this.textPath.Size = new System.Drawing.Size(487, 20);
             this.textPath.TabIndex = 4;
-            this.textPath.Text = "C:\\Workspace\\Kobo0124\\client\\cssrc";
             // 
             // label1
             // 

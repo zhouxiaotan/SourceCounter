@@ -26,7 +26,7 @@ namespace SourceCodeCounter
             try
             {
                 button1.Enabled = false;
-                if (this.textPath.Text == string.Empty)
+                if (this.textPath.Text == string.Empty || this.textPackage.Text == string.Empty)
                 {
                     return;
                 }
