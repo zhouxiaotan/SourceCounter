@@ -5,4 +5,4 @@
 
 下载地址
 
-https://github.com/zhouxiaotan/SourceCounter/blob/master/Binary/SourceCodeCounter20200311.zip
+https://github.com/zhouxiaotan/SourceCounter/blob/master/Binary/SourceCodeCounter.zip
