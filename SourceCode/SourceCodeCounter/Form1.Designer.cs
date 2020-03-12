@@ -38,12 +38,12 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.progressBar2 = new System.Windows.Forms.ProgressBar();
             this.progressBar1 = new System.Windows.Forms.ProgressBar();
             this.panel4 = new System.Windows.Forms.Panel();
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.listBox1 = new System.Windows.Forms.ListBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panel3.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -54,7 +54,6 @@
             // 
             this.panel1.Controls.Add(this.textPackage);
             this.panel1.Controls.Add(this.label2);
-            this.panel1.Controls.Add(this.button3);
             this.panel1.Controls.Add(this.button2);
             this.panel1.Controls.Add(this.textPath);
             this.panel1.Controls.Add(this.label1);
@@ -84,9 +83,11 @@
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(571, 46);
+            this.button3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Bold);
+            this.button3.Location = new System.Drawing.Point(15, 36);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(82, 23);
+            this.button3.Size = new System.Drawing.Size(136, 33);
             this.button3.TabIndex = 6;
             this.button3.Text = "EXPORT";
             this.button3.UseVisualStyleBackColor = true;
@@ -121,23 +122,23 @@
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.button3);
             this.panel3.Controls.Add(this.button1);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Right;
             this.panel3.Location = new System.Drawing.Point(657, 0);
-            this.panel3.Margin = new System.Windows.Forms.Padding(15);
+            this.panel3.Margin = new System.Windows.Forms.Padding(5);
             this.panel3.Name = "panel3";
-            this.panel3.Padding = new System.Windows.Forms.Padding(15);
+            this.panel3.Padding = new System.Windows.Forms.Padding(15, 3, 15, 3);
             this.panel3.Size = new System.Drawing.Size(166, 72);
             this.panel3.TabIndex = 2;
             // 
             // button1
             // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.button1.Dock = System.Windows.Forms.DockStyle.Top;
             this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(15, 15);
-            this.button1.Margin = new System.Windows.Forms.Padding(15);
+            this.button1.Location = new System.Drawing.Point(15, 3);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(136, 42);
+            this.button1.Size = new System.Drawing.Size(136, 33);
             this.button1.TabIndex = 0;
             this.button1.Text = "START";
             this.button1.UseVisualStyleBackColor = true;
@@ -145,21 +146,13 @@
             // 
             // panel2
             // 
-            this.panel2.Controls.Add(this.progressBar2);
+            this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.progressBar1);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel2.Location = new System.Drawing.Point(0, 72);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(823, 46);
+            this.panel2.Size = new System.Drawing.Size(823, 79);
             this.panel2.TabIndex = 1;
-            // 
-            // progressBar2
-            // 
-            this.progressBar2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.progressBar2.Location = new System.Drawing.Point(0, 23);
-            this.progressBar2.Name = "progressBar2";
-            this.progressBar2.Size = new System.Drawing.Size(823, 23);
-            this.progressBar2.TabIndex = 1;
             // 
             // progressBar1
             // 
@@ -175,26 +168,29 @@
             this.panel4.Controls.Add(this.splitter1);
             this.panel4.Controls.Add(this.listBox1);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel4.Location = new System.Drawing.Point(0, 118);
+            this.panel4.Location = new System.Drawing.Point(0, 151);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(823, 425);
+            this.panel4.Size = new System.Drawing.Size(823, 392);
             this.panel4.TabIndex = 2;
             // 
             // textBox1
             // 
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.textBox1.Font = new System.Drawing.Font("MS Gothic", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.textBox1.Location = new System.Drawing.Point(229, 0);
             this.textBox1.Multiline = true;
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(594, 425);
+            this.textBox1.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.textBox1.Size = new System.Drawing.Size(594, 392);
             this.textBox1.TabIndex = 1;
+            this.textBox1.WordWrap = false;
             // 
             // splitter1
             // 
             this.splitter1.BackColor = System.Drawing.SystemColors.HotTrack;
             this.splitter1.Location = new System.Drawing.Point(219, 0);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(10, 425);
+            this.splitter1.Size = new System.Drawing.Size(10, 392);
             this.splitter1.TabIndex = 2;
             this.splitter1.TabStop = false;
             // 
@@ -204,9 +200,19 @@
             this.listBox1.FormattingEnabled = true;
             this.listBox1.Location = new System.Drawing.Point(0, 0);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(219, 425);
+            this.listBox1.Size = new System.Drawing.Size(219, 392);
             this.listBox1.TabIndex = 0;
+            this.listBox1.MouseClick += new System.Windows.Forms.MouseEventHandler(this.listBox1_MouseClick);
             this.listBox1.DoubleClick += new System.EventHandler(this.listBox1_DoubleClick);
+            // 
+            // label3
+            // 
+            this.label3.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label3.Location = new System.Drawing.Point(0, 23);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(823, 30);
+            this.label3.TabIndex = 1;
+            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // Form1
             // 
@@ -238,7 +244,6 @@
         private System.Windows.Forms.Panel panel3;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.ProgressBar progressBar2;
         private System.Windows.Forms.ProgressBar progressBar1;
         private System.Windows.Forms.Panel panel4;
         private System.Windows.Forms.Label label2;
@@ -246,6 +251,7 @@
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Splitter splitter1;
         private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.Label label3;
     }
 }
 

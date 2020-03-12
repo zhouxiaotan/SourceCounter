@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackClass.cs" />
     <Compile Include="FileFolderDialog.cs">
       <SubType>Component</SubType>
     </Compile>

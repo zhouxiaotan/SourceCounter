@@ -23,21 +23,37 @@ namespace SourceCodeCounter
 
         private void button1_Click(object sender, EventArgs e)
         {
-            if (this.textPath.Text == string.Empty)
+            try
             {
-                return;
+                button1.Enabled = false;
+                if (this.textPath.Text == string.Empty)
+                {
+                    return;
+                }
+
+                this.packageList.Clear();
+                this.textBox1.Text = string.Empty;
+
+                GetPackageList();
+
+                this.listBox1.Items.Clear();
+                foreach (var item in packageList)
+                {
+                    this.listBox1.Items.Add(item.PackageId);
+                }
+
+                GetPackageDetail();
+
+                if (listBox1.Items.Count > 0)
+                {
+                    listBox1.SelectedIndex = 0;
+                    listBox1_DoubleClick(listBox1, new EventArgs());
+                }
             }
-
-            GetPackageList();
-
-            this.listBox1.Items.Clear();
-            foreach (var item in packageList)
+            finally
             {
-                this.listBox1.Items.Add(item.PackageId);
+                button1.Enabled = true;
             }
-
-            GetPackageDetail();
-
 
         }
 
@@ -74,6 +90,7 @@ namespace SourceCodeCounter
 
             foreach (var pack in packageList)
             {
+
                 progressBar1.Value = packageList.IndexOf(pack) + 1;
                 this.listBox1.SelectedItem = pack.PackageId;
 
@@ -84,6 +101,9 @@ namespace SourceCodeCounter
 
                 foreach (var packfile in pack.PackFileList)
                 {
+                    label3.Text = packfile.FilePath;
+                    Application.DoEvents();
+
                     var fileAllLines = File.ReadAllLines(packfile.FilePath);
 
                     // When Created File
@@ -107,6 +127,7 @@ namespace SourceCodeCounter
                     bool isDelete = false;
                     bool isReplace = false;
                     int packIDLen = pack.PackageId.Length;
+
                     foreach (var line in fileAllLines)
                     {
                         if (line.Contains(pack.PackageId) && line.Contains(appendStr))
@@ -163,7 +184,6 @@ namespace SourceCodeCounter
                         {
                             isDelete = false;
                         }
-
 
                     }
                     pack.AppendCount += packfile.AppendCount;
@@ -419,49 +439,54 @@ namespace SourceCodeCounter
 
         private void listBox1_DoubleClick(object sender, EventArgs e)
         {
+            if (listBox1.SelectedIndex < 0)
+            {
+                return;
+            }
+
+            var package = packageList.Find(obj => obj.PackageId == listBox1.SelectedItem.ToString());
+
+            if (package == null)
+            {
+                return;
+            }
+
+            textBox1.Text = string.Empty;
+            textBox1.Text += string.Format("ファイル数：\t\t{0}\r\n", package.PackFileList.Count);
+            textBox1.Text += string.Format("行数：\t\t\t{0}\r\n", package.PackFileList.Sum(file => file.CommentCount + file.AppendCount + file.ReplaceCount));
+            textBox1.Text += string.Format("コメント行数：\t\t{0}\r\n", package.PackFileList.Sum(file => file.CommentCount));
+            textBox1.Text += string.Format("追加行数：\t\t{0}\r\n", package.PackFileList.Sum(file => file.AppendCount));
+            textBox1.Text += string.Format("削除行数：\t\t{0}\r\n", package.PackFileList.Sum(file => file.DeleteCount));
+            textBox1.Text += string.Format("修正行数：\t\t{0}\r\n", package.PackFileList.Sum(file => file.ReplaceCount));
+            textBox1.Text += Environment.NewLine;
+
+            textBox1.Text += "===============================";
+            textBox1.Text += Environment.NewLine;
+            foreach (var file in package.PackFileList)
+            {
+                textBox1.Text += string.Format("{0,-50}", file.FileName);
+                textBox1.Text += string.Format("行数({0,5})", file.CommentCount + file.AppendCount + file.ReplaceCount).PadRight(20);
+                textBox1.Text += string.Format("コメント行数({0,5})", file.CommentCount).PadRight(20);
+                textBox1.Text += string.Format("追加行数({0,5})", file.AppendCount).PadRight(20);
+                textBox1.Text += string.Format("削除行数({0,5})", file.DeleteCount).PadRight(20);
+                textBox1.Text += string.Format("修正行数({0,5})", file.ReplaceCount).PadRight(20);
+                textBox1.Text += Environment.NewLine;
+
+            }
+            textBox1.Text += Environment.NewLine;
 
         }
 
+        public string PadRightA(string input, int len)
+        {
+            var lengthBtye = Encoding.Default.GetByteCount(input);
+            var output = input.PadRight(len - (lengthBtye - input.Length));
+            return output;
+        }
 
-        //        Range("A1:I1").Select
-        //With Selection.Interior
-        //    .Pattern = xlSolid
-        //    .PatternColorIndex = xlAutomatic
-        //    .ThemeColor = xlThemeColorDark1
-        //    .TintAndShade = -0.249977111117893
-        //    .PatternTintAndShade = 0
-        //End With
-
-        //Selection.Borders(xlDiagonalDown).LineStyle = xlNone
-        //Selection.Borders(xlDiagonalUp).LineStyle = xlNone
-
-        //With Selection.Borders(xlEdgeLeft)
-        //    .LineStyle = xlContinuous
-        //    .ColorIndex = 0
-        //    .TintAndShade = 0
-        //    .Weight = xlThin
-        //End With
-
-        //With Selection.Borders(xlEdgeTop)
-        //    .LineStyle = xlContinuous
-        //    .ColorIndex = 0
-        //    .TintAndShade = 0
-        //    .Weight = xlThin
-        //End With
-        //With Selection.Borders(xlEdgeBottom)
-        //    .LineStyle = xlContinuous
-        //    .ColorIndex = 0
-        //    .TintAndShade = 0
-        //    .Weight = xlThin
-        //End With
-        //With Selection.Borders(xlEdgeRight)
-        //    .LineStyle = xlContinuous
-        //    .ColorIndex = 0
-        //    .TintAndShade = 0
-        //    .Weight = xlThin
-        //End With
-
-        //Columns("A:I").EntireColumn.AutoFit
-        //Columns("A:I").EntireColumn.AutoFit
+        private void listBox1_MouseClick(object sender, MouseEventArgs e)
+        {
+            listBox1_DoubleClick(sender, new EventArgs());
+        }
     }
 }
