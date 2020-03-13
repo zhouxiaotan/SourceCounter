@@ -19,12 +19,19 @@ namespace SourceCodeCounter
         public Form1()
         {
             InitializeComponent();
+            textPath.Text = Properties.Settings.Default.FilePath;
+            textPackage.Text = Properties.Settings.Default.PackageBefore;
+
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             try
             {
+                Properties.Settings.Default.FilePath = textPath.Text;
+                Properties.Settings.Default.PackageBefore = textPackage.Text;
+                Properties.Settings.Default.Save();
+
                 button1.Enabled = false;
                 if (this.textPath.Text == string.Empty || this.textPackage.Text == string.Empty)
                 {
@@ -57,27 +64,64 @@ namespace SourceCodeCounter
 
         }
 
-        public bool IsCommentLine(string line, string fileName)
+        public bool IsCommentLine(string line, string fileName, ref bool isCommntStarted)
         {
             bool ret = false;
+            line = line.Trim().Trim('\t');
             if (fileName.Contains(".cs"))
             {
                 ret = line.Contains("//") && line.Trim().Substring(0, 2) == "//";
             }
-            else if (fileName.Contains(".xaml"))
+            else if (fileName.Contains(".xaml") || fileName.Contains(".xml"))
             {
                 ret = line.Contains("<!--") && line.Trim().Substring(0, 4) == "<!--";
+                if (ret)
+                {
+                    if (!line.Contains("-->") && line.Trim().Substring(line.Trim().Length - 3, 3) == "-->")
+                    {
+                        isCommntStarted = true;
+                    }
+                }
+                else
+                {
+                    if (isCommntStarted && !(line.Contains("-->") && line.Trim().Substring(line.Trim().Length - 3, 3) == "-->"))
+                    {
+                        ret = true;
+                        isCommntStarted = false;
+                    }
+                }
+                if (!ret)
+                {
+                    ret = isCommntStarted;
+                }
             }
-            else if (fileName.Contains(".cpp") || fileName.Contains(".h"))
+            else if (fileName.Contains(".properties"))
+            {
+                ret = line.Contains("#") && line.Trim().Substring(0, 1) == "#";
+            }
+            else if (fileName.Contains(".cpp") || fileName.Contains(".h") || fileName.Contains(".java") || fileName.Contains(".js"))
             {
                 ret = line.Contains("//") && line.Trim().Substring(0, 2) == "//";
                 if (!ret)
                 {
                     ret = line.Contains("/*") && line.Trim().Substring(0, 2) == "/*";
+                    if (ret) isCommntStarted = true;
                 }
                 if (!ret)
                 {
-                    ret = line.Contains("*/") && line.Trim().Substring(line.Length - 3, 2) == "*/";
+                    ret = line.Contains("*/") && line.Trim().Substring(line.Trim().Length - 2, 2) == "*/";
+                    if (ret) isCommntStarted = false;
+                }
+                if (fileName.Contains(".cpp") || fileName.Contains(".h"))
+                {
+                    if (isCommntStarted && line.Contains("*/") && line.Trim().Substring(line.Trim().Length - 2, 2) == "*/")
+                    {
+                        isCommntStarted = false;
+                    }
+                }
+                if (!ret)
+                {
+                    ret = isCommntStarted;
                 }
             }
             return ret;
@@ -98,6 +142,10 @@ namespace SourceCodeCounter
                 var replaceStr = pack.PackageId + "R";
                 var deleteStr = pack.PackageId + "D";
                 var endStr = pack.PackageId + "E";
+                var propAppendStr = pack.PackageId + " ADD";
+                var propEndStr = pack.PackageId + " END";
+                var titleStr = pack.PackageId + "\t";
+                var titleStrCs = "<term>" + pack.PackageId + "</term>";
 
                 foreach (var packfile in pack.PackFileList)
                 {
@@ -108,11 +156,19 @@ namespace SourceCodeCounter
 
                     // When Created File
                     if ((fileAllLines.Count(obj => obj.Contains(pack.PackageId)) == 1) ||
-                        fileAllLines.FirstOrDefault(obj => obj.Contains(appendStr) || obj.Contains(replaceStr) || obj.Contains(deleteStr)) == null)
+                        fileAllLines.FirstOrDefault(obj =>
+                            obj.Contains(appendStr) ||
+                            obj.Contains(replaceStr) ||
+                            obj.Contains(deleteStr) ||
+                            obj.Contains(propAppendStr) ||
+                            obj.Contains(propEndStr)
+                            ) == null)
                     {
+                        bool isCommntStarted = false;
                         foreach (var line in fileAllLines)
                         {
-                            if (IsCommentLine(line, packfile.FileName))
+                            var isComment = IsCommentLine(line, packfile.FileName, ref isCommntStarted);
+                            if (isComment || isCommntStarted)
                             {
                                 packfile.CommentCount += 1;
                             }
@@ -123,68 +179,117 @@ namespace SourceCodeCounter
                         }
                         //packfile.AppendCount = packfile.LineCount = fileAllLines.Length;
                     }
-                    bool isAppend = false;
-                    bool isDelete = false;
-                    bool isReplace = false;
-                    int packIDLen = pack.PackageId.Length;
-
-                    foreach (var line in fileAllLines)
+                    else
                     {
-                        if (line.Contains(pack.PackageId) && line.Contains(appendStr))
+                        bool isAppend = false;
+                        bool isDelete = false;
+                        bool isReplace = false;
+                        int packIDLen = pack.PackageId.Length;
+
+                        bool isPropAppend = false;
+                        bool isCommntStarted = false;
+
+                        foreach (var line in fileAllLines)
                         {
-                            isAppend = true;
-                        }
-                        else if (!line.Contains(pack.PackageId) && isAppend == true)
-                        {
-                            if (IsCommentLine(line, packfile.FileName))
+                            var isComment = IsCommentLine(line, packfile.FileName, ref isCommntStarted);
+                            if (isCommntStarted && line.Contains(pack.PackageId))
                             {
                                 packfile.CommentCount += 1;
                             }
                             else
                             {
-                                packfile.AppendCount += 1;
+                                if (line.Contains(pack.PackageId) && (line.Contains(titleStr) || line.Contains(titleStrCs)))
+                                {
+                                    packfile.CommentCount += 1;
+                                }
                             }
-                        }
-                        else if (line.Contains(pack.PackageId) && isAppend && line.Contains(endStr))
-                        {
-                            isAppend = false;
-                        }
 
-                        if (line.Contains(pack.PackageId) && line.Contains(replaceStr))
-                        {
-                            isReplace = true;
-                        }
-                        else if (!line.Contains(pack.PackageId) && isReplace == true)
-                        {
-                            if (IsCommentLine(line, packfile.FileName))
+
+                            if (line.Contains(pack.PackageId) && line.Contains(appendStr))
                             {
                                 packfile.CommentCount += 1;
+                                isAppend = true;
                             }
-                            else
+                            else if (!line.Contains(pack.PackageId) && isAppend == true)
                             {
-                                packfile.ReplaceCount += 1;
+                                if (IsCommentLine(line, packfile.FileName, ref isCommntStarted))
+                                {
+                                    packfile.CommentCount += 1;
+                                }
+                                else
+                                {
+                                    packfile.AppendCount += 1;
+                                }
                             }
-                        }
-                        else if (line.Contains(pack.PackageId) && isReplace && line.Contains(endStr))
-                        {
-                            isReplace = false;
-                        }
+                            else if (line.Contains(pack.PackageId) && isAppend && line.Contains(endStr))
+                            {
+                                packfile.CommentCount += 1;
+                                isAppend = false;
+                            }
+                            // .properties file
+                            if (line.Contains(pack.PackageId) && line.Contains(propAppendStr))
+                            {
+                                packfile.CommentCount += 1;
+                                isPropAppend = true;
+                            }
+                            else if (!line.Contains(pack.PackageId) && isPropAppend == true)
+                            {
+                                if (IsCommentLine(line, packfile.FileName, ref isCommntStarted))
+                                {
+                                    packfile.CommentCount += 1;
+                                }
+                                else
+                                {
+                                    packfile.AppendCount += 1;
+                                }
+                            }
+                            else if (line.Contains(pack.PackageId) && isPropAppend && line.Contains(propEndStr))
+                            {
+                                packfile.CommentCount += 1;
+                                isPropAppend = false;
+                            }
 
-                        if (line.Contains(pack.PackageId) && line.Contains(deleteStr))
-                        {
-                            isDelete = true;
-                        }
-                        else if (!line.Contains(pack.PackageId) && isDelete == true)
-                        {
+                            if (line.Contains(pack.PackageId) && line.Contains(replaceStr))
+                            {
+                                packfile.CommentCount += 1;
+                                isReplace = true;
+                            }
+                            else if (!line.Contains(pack.PackageId) && isReplace == true)
+                            {
+                                if (IsCommentLine(line, packfile.FileName, ref isCommntStarted))
+                                {
+                                    packfile.CommentCount += 1;
+                                }
+                                else
+                                {
+                                    packfile.ReplaceCount += 1;
+                                }
+                            }
+                            else if (line.Contains(pack.PackageId) && isReplace && line.Contains(endStr))
+                            {
+                                packfile.CommentCount += 1;
+                                isReplace = false;
+                            }
 
-                            packfile.DeleteCount += 1;
-                            packfile.CommentCount += 1;
-                        }
-                        else if (line.Contains(pack.PackageId) && isDelete && line.Contains(endStr))
-                        {
-                            isDelete = false;
-                        }
+                            if (line.Contains(pack.PackageId) && line.Contains(deleteStr))
+                            {
+                                packfile.CommentCount += 1;
+                                isDelete = true;
+                            }
+                            else if (!line.Contains(pack.PackageId) && isDelete == true)
+                            {
 
+                                packfile.DeleteCount += 1;
+                                packfile.CommentCount += 1;
+                            }
+                            else if (line.Contains(pack.PackageId) && isDelete && line.Contains(endStr))
+                            {
+                                packfile.CommentCount += 1;
+                                isDelete = false;
+                            }
+
+
+                        }
                     }
                     pack.AppendCount += packfile.AppendCount;
                     pack.DeleteCount += packfile.DeleteCount;
@@ -328,6 +433,10 @@ namespace SourceCodeCounter
                     if (fileContent.Contains(textPackage.Text))
                     {
                         if (item.FullName.Contains(@"EXTERN\sql") && item.Extension == ".c")
+                        {
+                            continue;
+                        }
+                        if (item.FullName.Contains(@"\classes\") || item.FullName.Contains(@"\bin\"))
                         {
                             continue;
                         }
